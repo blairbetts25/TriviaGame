@@ -1,0 +1,89 @@
+body{
+    background-image: url("https://wallpapercave.com/wp/3LBX9VI.jpg");
+    fill: cover;
+}
+.main{
+    align-content: center;
+    text-align: center;
+    background: transparent;
+    margin-left: 25%;
+    margin-right: 25%;
+    padding-top: 0px;
+}
+.game{
+    align-content: center;
+    text-align: center;
+    /* background: transparent; */
+    margin-right: 65%;
+    padding-top: 0px;
+}
+h1{
+    color: gold;
+    font-family: 'WaltographRegular'; 
+    font-weight: bold; 
+    font-style: normal; 
+    font-size: 90px;
+}
+
+#status{
+    color: white;
+    font-size:50px;
+}
+button{
+    olor: black;
+    margin-right: 30px;
+    height: 60px;
+    width: 400px;
+}
+div{
+    color:white;
+}
+#timer{
+    align-content: center;
+    text-align: center;
+    background: transparent;
+    border: solid red 3px;
+    width: 80px;
+    height: 100px;
+    position: relative;
+    left: 400px;  
+    top: 0px;  
+}
+h2{
+    font-size: 60px;
+}
+#question{
+    position: absolute;
+    left: 50px;
+    top: 100px;
+    margin-right: 65%;   
+    /* background: black;  */
+}
+#answer{
+    position: absolute;
+    left: 50px;
+    top: 450px;
+    margin-right: 65%;
+    /* background: red; */
+}
+#status{
+    position: absolute;
+    left: 50px;
+    top: 750px;
+    margin-right: 65%;
+    /* background: green; */
+
+}
+#result{
+    position: absolute;
+    top: 100px;
+    margin-left: 65%;   
+    background: black; 
+}
+#comment{
+    position: absolute;
+    left: 50px;
+    top: 450px;
+    margin-left: 65%;
+    background: red;
+}
