@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/waltograph" type="text/css"/>
+    <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/waltograph" type="text/css" />
     <link rel="stylesheet" type="text/css" media="screen" href="assets/css/style.css">
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
@@ -26,17 +26,33 @@
 
 <body>
     <header></header>
-    <div class="jumbotron main align-top ">
+
+    <div class="jumbotron main align-top jumbotron-fluid">
         <h1>Welcome To Disney Trivia</h1>
-        <button type="button" class="btn btn-danger" id="startMyGame">Click Me To Start Your Trivia</button>
         <div id="timer"></div>
+        <div id="questionNumber"></div>
+        <div id="result"></div>
+        <button type="button" class="btn btn-danger" id="resetButton">New Game?</button>
+        <button type="button" class="btn btn-danger" id="startMyGame">Click Me To Start Your Trivia</button>        
+        <div class="jumbotron align-top jumbotron-fluid">
+            <div id="question"></div>            
+        </div>
     </div>
-    
-    <div id="question"></div>
-    <div id="answer"></div>
-    <div id="result"></div>
-    <div id= "status"></div>
-    <div id="comment"></div>
+    <div class="jumbotron align-top jumbotron-fluid">
+        <div id="answer">
+            <div class="row">
+                <button type="button" class="btn btn-warning" id="answer1" data-DisneyData="0"></button>
+                <button type="button" class="btn btn-warning" id="answer2" data-DisneyData="1"></button>
+            </div>
+            <div class="row">
+                <button type="button" class="btn btn-warning" id="answer3" data-DisneyData="2"></button>
+                <button type="button" class="btn btn-warning" id="answer4" data-DisneyData="3"></button>
+            </div>
+        </div>
+        <div id="status"></div>
+        <div id="comment"></div>
+    </div>
+
 
 
 </body>

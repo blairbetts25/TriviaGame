@@ -1,22 +1,99 @@
 $(document).ready(function () {
+    // hides the answers before the game starts
+    $(".btn-warning").hide();
+    // hides the timer before the game starts
+    $("#timer").hide();
+    // hides the reset button 
+    $("#resetButton").hide();
     // has the user selected an answer
     var userSelection = false;
     // the user guess for the question
     var userGuess;
     // index of the disney array
-    var questionCount = 0;
-    // what the timerValue is set to ex 20 seconds 
-    var timerValue;
+    var questionCount;
+    // which question youre on
+    var questionStatus;
     // is the timerValue running
     var timerRunning = false;
+    // what the timerValue is set to ex 20 seconds 
+    var timerValue;
     // variable to set the interval to
     var theTimer;
-    // array of objects which includes the questions, correct answer, the possible choices, and a comment about the answer
+    // counter for the amount of quetions answered right
+    var questionsCorrect;
+    // counter for the questions answered wrong
+    var questionsWrong;
+    //Enum for the states of the game
+    var correctNumber;
+    const statesEnum = {
+        startUpState: 0,
+        questionState: 1,
+        answerChoicesState: 2,
+        checkAnswerState: 3,
+        scoreboardState: 4
+
+    };
+    // //state
+    var currentState = statesEnum.startUpState;
+    //Array of object of the states of the game
+    var stateRequirements = [
+        // Start up State
+        {
+            timerRequired: false,
+            timerlength: 0,
+            questionVisable: false,
+            answerChoicesVisable: false,
+            correctAnswerVisable: false,
+            timerVisable: false,
+            resetButtonVisable: false
+        },
+        // quesiton State
+        {
+            timerRequired: true,
+            timerlength: 2,
+            questionVisable: true,
+            answerChoicesVisable: false,
+            correctAnswerVisable: false,
+            timerVisable: true,
+            resetButtonVisable: false
+        },
+        // Answer choices state
+        {
+            timerRequired: true,
+            timerlength: 10,
+            questionVisable: true,
+            answerChoicesVisable: true,
+            correctAnswerVisable: false,
+            timerVisable: true,
+            resetButtonVisable: false
+        },
+        // correct answer and comment state
+        {
+            timerRequired: true,
+            timerlength: 6,
+            questionVisable: true,
+            answerChoicesVisable: false,
+            correctAnswerVisable: true,
+            timerVisable: true,
+            resetButtonVisable: false
+        },
+        // scoreboard State
+        {
+            timerRequired: true,
+            timerlength: 0,
+            questionVisable: true,
+            answerChoicesVisable: false,
+            correctAnswerVisable: false,
+            timerVisable: false,
+            resetButtonVisable: true
+        }
+    ];
+    // Array of objects containing the Question, Answer Choices, Index of the Correct Answer, and a Comment about the question
     var Disney = [
         {
             Question: "Who is Mickey in a relationship with?",
             correctAnswer: 1,
-            choices: ["Daisey", "Minney", "Cinderella", "Elsa"],
+            choices: ["Daisy", "Minnie", "Cinderella", "Elsa"],
             comment: "Don't you just love a nice romantic couple"
 
         },
@@ -86,130 +163,191 @@ $(document).ready(function () {
 
     ]
     $("#startMyGame").on("click", function startMyGame() {
+        currentState;
+        questionCount = 0;
+        questionStatus = 1;
+        questionsCorrect = 0;
+        questionsWrong = 0;
         displayQuestion();
-
     });
-
-    function decrement() {
+    //start funciton for timer
+    function startTimer() {
         // lowering the timerValue
-        timerValue--
-        // display the timerValue
+        timerValue = stateRequirements[currentState].timerlength;
+        clearInterval(theTimer);
+        theTimer = setInterval(runningTimer, 1000);
         $("#timer").html("<h2>" + timerValue + "</h2>");
-        if (timerValue === 0) {
-            clearInterval(theTimer);
-            $("#answer").empty();
-            $("#answer").show();
-            timerRunning = false;
-            if (!userSelection)
-                displayAnswers();
-        }
+
     }
+    // processing timer
+    function runningTimer() {
+        timerValue--;
+        $("#timer").html("<h2>" + timerValue + "</h2>");
+        if (userSelection || timerValue === 0) {
+            clearInterval(theTimer);
+
+            switch (currentState) {
+                case statesEnum.questionState:
+                    displayAnswers();
+                    break;
+                case statesEnum.answerChoicesState:
+                    displayResult();
+                    break;
+                case statesEnum.checkAnswerState:
+                    reviewResut();
+                    break;
+                case statesEnum.scoreboardState:
+                    endOfGame();
+                    break;
+            };
+        };
+    }
+    function uiDisplay() {
+        // does the question need to be visable
+        if (stateRequirements[currentState].questionVisable) {
+            $("#question").show();
+            $("#startMyGame").hide();
+            $("#questionNumber").show();
+
+        }
+        else {
+            $("#question").hide();
+            $("#questionNumber").hide();
+        };
+        // does the tieer need to be visable
+        if (stateRequirements[currentState].timerVisable) {
+            $("#timer").show();
+        }
+        else {
+            $("#timer").hide();
+        };
+        // do the answer choices need to be visable
+        if (stateRequirements[currentState].answerChoicesVisable) {
+            $(".btn-warning").show();
+        }
+        else {
+            $(".btn-warning").hide();
+        };
+        // does the correct answer, right or wrong status, or comment need to be visableS
+        if (stateRequirements[currentState].correctAnswerVisable) {
+            $("#result").show();
+            $("#status").show();
+            $("#comment").show();
+        }
+        else {
+            $("#result").hide();
+            $("#status").hide();
+            $("#comment").hide();
+        };
+        if (stateRequirements[currentState].resetButtonVisable) {
+            $("#resetButton").show();
+        }
+        else {
+            $("#resetButton").hide();
+        };
+    }
+    // function to display the question
     function displayQuestion() {
+        userSelection = false;
+        currentState = statesEnum.questionState;
+        //CALL FUNCTION HERE SET UI DISPLAY
+        uiDisplay();
         // hide the start button
         $("#startMyGame").hide();
+        $("#questionNumber").html("<h2>" + "Question " + questionStatus + "</h2>");
         $("h1").html("<h1>" + "Good Luck!" + "</h1>");
         // display the question
         $("#question").html("<h2>" + Disney[questionCount].Question + "</h2>")
-        // if the question count is lower that the length of the Disney array minus 1 then display the quesiton
-        // if (questionCount < Disney.length - 1) {
-        // if the timerValue is not running
-        if (!timerRunning) {
-            timerRunning = true;
-            timerValue = 1;
-            clearInterval(theTimer);
-            // set a interval to 1 second and take one second away from the timerValue
-            theTimer = setInterval(decrement, 1000);
-        }
-        // }
+        startTimer();
+
     };
-    function decrementAnswer() {
-        // lowering the timerValue
-        timerValue--
-        // display the timerValue
-        $("#timer").html("<h2>" + timerValue + "</h2>");
-        if (timerValue === 0) {
-            clearInterval(theTimer);
-            timerRunning = false;
-            alert("OH NO youve run out of time")
-            displayCorrectAnswer();
 
-        }
-    }
-
+    // function for displaying the answer choices
     function displayAnswers() {
-        $(".game").html(("<h2>" + Disney[questionCount].Question + "</h2>"))
-        $("#answer").append('<button data-DisneyData="' + 0 + '">' + Disney[questionCount].choices[0] + "</button>");
-        $("#answer").append('<button data-DisneyData="' + 1 + '">' + Disney[questionCount].choices[1] + "</button>");
-        $("#answer").append('<button data-DisneyData="' + 2 + '">' + Disney[questionCount].choices[2] + "</button>");
-        $("#answer").append('<button data-DisneyData="' + 3 + '">' + Disney[questionCount].choices[3] + "</button>");
 
+        currentState = statesEnum.answerChoicesState;
+        //CALL FUNCTION HERE SET UI DISPLAY
+        uiDisplay();
+        $(".game").html(("<h2>" + Disney[questionCount].Question + "</h2>"));
+        $("#answer1").text(Disney[questionCount].choices[0]);
+        $("#answer2").text(Disney[questionCount].choices[1]);
+        $("#answer3").text(Disney[questionCount].choices[2]);
+        $("#answer4").text(Disney[questionCount].choices[3]);
+        startTimer();
 
-        if (!timerRunning) {
-            timerRunning = true;
-            timerValue = 5;
-            clearInterval(theTimer)
-            theTimer = setInterval(decrementAnswer, 1000)
-            if (!userSelection) {
-                $("button").on("click", function userAnswer() {
-                    userGuess = this.getAttribute("data-DisneyData");
-                    userSelection = true;
-                    displayCorrectAnswer();
-                    clearInterval(decrementAnswer);
-                    timerRunning = false;
-                })
-            }
-
-
-
-        }
     };
+    // to do add the UI BUTTON so function can be called smoother
+    $(".btn-warning").on("click", function userAnswer() {
+        userGuess = $(this).data("disneydata")
+        userSelection = true;
+        correctNumber = parseInt(userGuess);
+    });
 
-    function decrementCorrectAnswer() {
-        // lowering the timerValue
-        timerValue--
-        // display the timerValue
-        $("#timer").html("<h2>" + timerValue + "</h2>");
-        if (timerValue === 0) {
-            clearInterval(theTimer);
-            timerRunning = false;
-            $("#answer").hide();
-            $("#comment").hide();
-            questionCount++
-            displayQuestion();
+    // function that displays the correct answer and the comment
+    function displayResult() {
 
-        };
-    };
+        currentState = statesEnum.checkAnswerState;
 
-
-    function displayCorrectAnswer() {
-        if (userGuess === Disney.correctAnswer) {
-            $("#result").html(("<h3>" + userGuess + "</h3>"));
+        //CALL FUNCTION HERE SET UI DISPLAY
+        uiDisplay();
+        $("#result").empty();
+        $("#status").empty();
+        $("#comment").empty();
+        if (correctNumber === Disney[questionCount].correctAnswer) {
+            $("#result").html(("<h2>" + Disney[questionCount].choices[correctNumber] + " is the Correct answer" + "</h2>"));
             $("#status").html("<h2>" + "YAY YOU GOT IT RIGHT" + ",</h2>");
-            $("#comment").html(("<h3>" + Disney[questionCount].comment + "</h3>"));
-            $("#comment").show();
-            if (!timerRunning) {
-                timerRunning = true;
-                timerValue = 5;
-                clearInterval(theTimer)
-                theTimer = setInterval(decrementCorrectAnswer, 1000)
-            }
-
-        } else {
-            var int = parseInt(userGuess);
-            $("#result").append(("<h3>" + "The correct answer is " + Disney[questionCount].choices[Disney[questionCount].correctAnswer] + "</h3>"));
-            // $("#result").append(("<h3>" + "This is what you picked" + Disney[questionCount.choices[int]] + "</h3>"));
-            $("#status").html("<h2>" + "OH NO YOU GOT IT WRONG" + ",</h2>");
-            $("#comment").html(("<h3>" + Disney[questionCount].comment + "</h3>"));
-            $("#comment").show();
-            if (!timerRunning) {
-                timerRunning = true;
-                timerValue = 5;
-                clearInterval(theTimer)
-                theTimer = setInterval(decrementCorrectAnswer, 1000)
-            }
+            $("#status").css("background-color", "green");
+            questionsCorrect++
         }
-    }
+        else {
+            $("#result").append(("<h2>" + "The correct answer is " + Disney[questionCount].choices[Disney[questionCount].correctAnswer] + "</h2>"));
+            if (userSelection) {
+                $("#result").append(("<h3>" + "This is what you picked " + Disney[questionCount].choices[correctNumber] + "</h3>"));
+            } else {
+                $("#result").append(("<h3> You didnt select an answer </h3>"));
+            }
+            $("#status").html("<h2>" + "OH NO YOU GOT IT WRONG" + "</h2>");
+            $("#status").css("background-color", "red");
+            questionsWrong++
+        };
+        $("#comment").html(("<h2>" + Disney[questionCount].comment + "</h2>"));
 
+        userSelection = false;
+        questionCount++;
+        questionStatus++;
+        startTimer();
+        if (questionStatus === 11) {
+            currentState = statesEnum.scoreboardState;
+        }
+    };
+    function reviewResut() {
+        displayQuestion();
+
+    };
+    function endOfGame() {
+        $("#questionNumber").html("<h2>" + "You got " + questionsCorrect + " questions right" + "</h2>");
+        $("#questionNumber").append("<h2>" + "You got " + questionsWrong + " questions wrong" + "</h2>");
+        $("#question").html("<h2> Do you wish to play again? </h2>");
+        $("h1").html("<h1>" + "Great Job!" + "</h1>");
+        $("#resetButton").show();
+        $("#timer").hide();
+        $("#result").hide();
+        $("#status").hide();
+        $("#comment").hide();
+    };
+
+    $("#resetButton").on("click", function resetGame() {
+        currentState = statesEnum.startUpState;
+        $("#resetButton").hide();
+        $("#timer").hide();
+        $("#startMyGame").show();
+        $("#result").hide();
+        $("#status").hide();
+        $("#comment").hide();
+        $("#question").hide();
+        $("#questionNumber").hide();
+        $("h1").html("<h1>" + "Welcome To Disney Trivia" + "</h1>");
+    });
 
 
 
