@@ -54,7 +54,7 @@ $(document).ready(function () {
             questionVisable: true,
             answerChoicesVisable: false,
             correctAnswerVisable: false,
-            timerVisable: true,
+            timerVisable: false,
             resetButtonVisable: false
         },
         // Answer choices state
@@ -70,11 +70,11 @@ $(document).ready(function () {
         // correct answer and comment state
         {
             timerRequired: true,
-            timerlength: 6,
+            timerlength: 5,
             questionVisable: true,
             answerChoicesVisable: false,
             correctAnswerVisable: true,
-            timerVisable: true,
+            timerVisable: false,
             resetButtonVisable: false
         },
         // scoreboard State
